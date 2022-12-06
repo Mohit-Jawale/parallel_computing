@@ -15,4 +15,4 @@ export OMP_PLACES=cores
 export OMP_PROC_BIND=spread
 
 
-srun ./dijkstra /WAVE/projects/COEN-319-Fa22/data/pr3/20000.graph 20000 output_20000
+srun ./dijkstra /WAVE/projects/COEN-319-Fa22/data/pr3/20000.graph 100 output_20000

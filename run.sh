@@ -10,7 +10,6 @@ git pull https://github.com/Mohit-Jawale/parallel_computing.git
 
 make dijkstra
 
-make clean
 
 
 
