@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-#SBATCH --job-name=djiktras
+#SBATCH --job-name=dijkstra
 #SBATCH --partition=cpu
 #SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=8G
