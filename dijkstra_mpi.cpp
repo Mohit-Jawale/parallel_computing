@@ -305,8 +305,8 @@ void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, in
               MPI_Comm comm) {
 
      
-    float glbl_u, new_dist, dist_glbl_u;
-    int i,my_rank,loc_u,loc_v;
+    float new_dist, dist_glbl_u;
+    int i,my_rank,loc_u,loc_v,glbl_u;
     float *loc_known;
     float my_min[2];
     float glbl_min[2];
