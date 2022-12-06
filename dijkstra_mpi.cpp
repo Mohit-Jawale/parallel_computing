@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
     comm = MPI_COMM_WORLD;
     MPI_Comm_rank(comm, &my_rank);
     MPI_Comm_size(comm, &p);
-    n = Read_n(my_rank, comm, argv[2]);
+    n = Read_n(my_rank, comm, atoi(argv[2]));
     loc_n = n / p;
     loc_mat = (float*)malloc(n * loc_n * sizeof(float));
     loc_dist = (float*)malloc(loc_n * sizeof(float));
