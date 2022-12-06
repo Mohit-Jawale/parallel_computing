@@ -1,4 +1,3 @@
-/* assert */
 #include <assert.h>
 /* INFINITY */
 #include <math.h>
