@@ -37,7 +37,8 @@
 #include <assert.h>
 #include <mpi.h>
 #include <time.h>
-#define INFINITY 1000000
+#include <math.h>
+
 
 
 #define ROWMJR(R,C,NR,NC) (R*NC+C)
