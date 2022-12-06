@@ -40,6 +40,13 @@
 #define INFINITY 1000000
 
 
+#define ROWMJR(R,C,NR,NC) (R*NC+C)
+#define COLMJR(R,C,NR,NC) (C*NR+R)
+/* define access directions for matrices */
+#define a(R,C) a[ROWMJR(R,C,ln,n)]
+#define b(R,C) b[ROWMJR(R,C,nn,n)]
+
+
 
 static void
 load(
