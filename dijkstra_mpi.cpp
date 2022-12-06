@@ -410,56 +410,56 @@ int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
 
 
 
-/*-------------------------------------------------------------------
- * Function:  Print_matrix
- * Purpose:   Print the contents of the matrix
- * In args:   mat, rows, cols
- *
- *
- */
-void Print_matrix(float mat[], float rows, float cols) {
-    int i, j;
+// /*-------------------------------------------------------------------
+//  * Function:  Print_matrix
+//  * Purpose:   Print the contents of the matrix
+//  * In args:   mat, rows, cols
+//  *
+//  *
+//  */
+// void Print_matrix(float mat[], float rows, float cols) {
+//     int i, j;
 
-    for (i = 0; i < rows; i++) {
-        for (j = 0; j < cols; j++)
-            if (mat[i * cols + j] == INFINITY)
-                printf("i ");
-            else
-                printf("%d ", mat[i * cols + j]);
-        printf("\n");
-    }
+//     for (i = 0; i < rows; i++) {
+//         for (j = 0; j < cols; j++)
+//             if (mat[i * cols + j] == INFINITY)
+//                 printf("i ");
+//             else
+//                 printf("%d ", mat[i * cols + j]);
+//         printf("\n");
+//     }
 
-    printf("\n");
-}
-
-
+//     printf("\n");
+// }
 
 
 
 
-/*-------------------------------------------------------------------
- * Function:    Print_dists
- * Purpose:     Print the length of the shortest path from 0 to each
- *              vertex
- * In args:     n:  the number of vertices
- *              dist:  distances from 0 to each vertex v:  dist[v]
- *                 is the length of the shortest path 0->v
- */
-void Print_dists(float global_dist[], int n) {
-    int v;
 
-    printf("  v    dist 0->v\n");
-    printf("----   ---------\n");
 
-    for (v = 1; v < n; v++) {
-        if (global_dist[v] == INFINITY) {
-            printf("%3d       %5s\n", v, "inf");
-        }
-        else
-            printf("%3d       %4d\n", v, global_dist[v]);
-        }
-    printf("\n");
-}
+// /*-------------------------------------------------------------------
+//  * Function:    Print_dists
+//  * Purpose:     Print the length of the shortest path from 0 to each
+//  *              vertex
+//  * In args:     n:  the number of vertices
+//  *              dist:  distances from 0 to each vertex v:  dist[v]
+//  *                 is the length of the shortest path 0->v
+//  */
+// void Print_dists(float global_dist[], int n) {
+//     int v;
+
+//     printf("  v    dist 0->v\n");
+//     printf("----   ---------\n");
+
+//     for (v = 1; v < n; v++) {
+//         if (global_dist[v] == INFINITY) {
+//             printf("%3d       %5s\n", v, "inf");
+//         }
+//         else
+//             printf("%3d       %4d\n", v, global_dist[v]);
+//         }
+//     printf("\n");
+// }
 
 
 
