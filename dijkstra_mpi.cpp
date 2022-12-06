@@ -466,34 +466,34 @@ int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
 
 
 
-/*-------------------------------------------------------------------
- * Function:    Print_paths
- * Purpose:     Print the shortest path from 0 to each vertex
- * In args:     n:  the number of vertices
- *              pred:  list of predecessors:  pred[v] = u if
- *                 u precedes v on the shortest path 0->v
- */
-void Print_paths(float global_pred[], int n) {
-    int v, w, *path, count, i;
+// /*-------------------------------------------------------------------
+//  * Function:    Print_paths
+//  * Purpose:     Print the shortest path from 0 to each vertex
+//  * In args:     n:  the number of vertices
+//  *              pred:  list of predecessors:  pred[v] = u if
+//  *                 u precedes v on the shortest path 0->v
+//  */
+// void Print_paths(float global_pred[], int n) {
+//     int v, w, *path, count, i;
 
-    path =  (float*)malloc(n * sizeof(float));
+//     path =  (float*)malloc(n * sizeof(float));
 
-    printf("  v     Path 0->v\n");
-    printf("----    ---------\n");
-    for (v = 1; v < n; v++) {
-        printf("%3d:    ", v);
-        count = 0;
-        w = v;
-        while (w != 0) {
-            path[count] = w;
-            count++;
-            w = global_pred[w];
-        }
-        printf("0 ");
-        for (i = count-1; i >= 0; i--)
-            printf("%d ", path[i]);
-        printf("\n");
-    }
+//     printf("  v     Path 0->v\n");
+//     printf("----    ---------\n");
+//     for (v = 1; v < n; v++) {
+//         printf("%3d:    ", v);
+//         count = 0;
+//         w = v;
+//         while (w != 0) {
+//             path[count] = w;
+//             count++;
+//             w = global_pred[w];
+//         }
+//         printf("0 ");
+//         for (i = count-1; i >= 0; i--)
+//             printf("%d ", path[i]);
+//         printf("\n");
+//     }
 
-    free(path);
-}
+//     free(path);
+// }
