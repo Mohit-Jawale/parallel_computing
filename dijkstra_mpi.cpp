@@ -34,24 +34,67 @@
  *-----------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include <mpi.h>
+#include <time.h>
 #define INFINITY 1000000
 
-int Read_n(int my_rank, MPI_Comm comm);
+
+
+static void
+load(
+  const char * const filename,
+  int * const np,
+  float ** const ap
+)
+{
+  int i, j, n, ret;
+  FILE * fp=NULL;
+  float * a;
+
+  /* open the file */
+  fp = fopen(filename, "r");
+  assert(fp);
+
+  /* get the number of nodes in the graph */
+  ret = fscanf(fp, "%d", &n);
+  assert(1 == ret);
+
+  /* allocate memory for local values */
+  a = (float*) malloc(n*n*sizeof(*a));
+  assert(a);
+
+  /* read in roots local values */
+  for (i=0; i<n; ++i) {
+    for (j=0; j<n; ++j) {
+      ret = fscanf(fp, "%f", &a(i,j));
+      assert(1 == ret);
+    }
+  }
+
+  /* close file */
+  ret = fclose(fp);
+  assert(!ret);
+
+  /* record output values */
+  *np = n;
+  *ap = a;
+}
+
+int Read_n(int my_rank, MPI_Comm comm, int n);
 MPI_Datatype Build_blk_col_type(int n, int loc_n);
-void Read_matrix(int loc_mat[], int n, int loc_n, MPI_Datatype blk_col_mpi_t,
-                 int my_rank, MPI_Comm comm);
-void Dijkstra_Init(int loc_mat[], int loc_pred[], int loc_dist[], int loc_known[],
-                   int my_rank, int loc_n);
-void Dijkstra(int loc_mat[], int loc_dist[], int loc_pred[], int loc_n, int n,
+void Read_matrix(float loc_mat[], int n, int loc_n,
+                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename);
+void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
               MPI_Comm comm);
-int Find_min_dist(int loc_dist[], int loc_known[], int loc_n);
-void Print_matrix(int global_mat[], int rows, int cols);
-void Print_dists(int global_dist[], int n);
-void Print_paths(int global_pred[], int n);
+void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],int my_rank, int loc_n);
+int Find_min_dist(float loc_dist[], float loc_known[], int loc_n);
+void Print_matrix(float global_mat[], int rows, int cols);
+void Print_dists(float global_dist[], int n);
+void Print_paths(float global_pred[], int n);
 
 int main(int argc, char **argv) {
-    int *loc_mat, *loc_dist, *loc_pred, *global_dist = NULL, *global_pred = NULL;
+    float *loc_mat, *loc_dist, *loc_pred, *global_dist = NULL, *global_pred = NULL;
     int my_rank, p, loc_n, n;
     MPI_Comm comm;
     MPI_Datatype blk_col_mpi_t;
@@ -60,18 +103,18 @@ int main(int argc, char **argv) {
     comm = MPI_COMM_WORLD;
     MPI_Comm_rank(comm, &my_rank);
     MPI_Comm_size(comm, &p);
-    n = Read_n(my_rank, comm);
+    n = Read_n(my_rank, comm, argv[2]);
     loc_n = n / p;
-    loc_mat = (int*)malloc(n * loc_n * sizeof(int));
-    loc_dist = (int*)malloc(loc_n * sizeof(int));
-    loc_pred = (int*)malloc(loc_n * sizeof(int));
+    loc_mat = (float*)malloc(n * loc_n * sizeof(float));
+    loc_dist = (float*)malloc(loc_n * sizeof(float));
+    loc_pred = (float*)malloc(loc_n * sizeof(float));
     blk_col_mpi_t = Build_blk_col_type(n, loc_n);
 
     if (my_rank == 0) {
-        global_dist = (int*)malloc(n * sizeof(int));
-        global_pred = (int*)malloc(n * sizeof(int));
+        global_dist = (float*)malloc(n * sizeof(float));
+        global_pred = (float*)malloc(n * sizeof(float));
     }
-    Read_matrix(loc_mat, n, loc_n, blk_col_mpi_t, my_rank, comm);
+    Read_matrix(loc_mat, n, loc_n, blk_col_mpi_t, my_rank, comm,argv[1]);
     Dijkstra(loc_mat, loc_dist, loc_pred, loc_n, n, comm);
 
     /* Gather the results from Dijkstra */
@@ -106,11 +149,8 @@ int main(int argc, char **argv) {
  *            comm:  Communicator containing all calling processes
  * Ret val:   n:  the number of rows in the matrix
  */
-int Read_n(int my_rank, MPI_Comm comm) {
-    int n;
+int Read_n(int my_rank, MPI_Comm comm, int n) {
 
-    if (my_rank == 0)
-        scanf("%d", &n);
 
     MPI_Bcast(&n, 1, MPI_INT, 0, comm);
     return n;
@@ -172,15 +212,23 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
  * Out arg:   loc_mat:  the calling process' submatrix (needs to be
  *               allocated by the caller)
  */
-void Read_matrix(int loc_mat[], int n, int loc_n,
-                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm) {
-    int *mat = NULL, i, j;
+void Read_matrix(float loc_mat[], int n, int loc_n,
+                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename) {
+    float * mat = NULL, i, j;
 
     if (my_rank == 0) {
-        mat = (int*)malloc(n * n * sizeof(int));
-        for (i = 0; i < n; i++)
-            for (j = 0; j < n; j++)
-                scanf("%d", &mat[i * n + j]);
+        // mat = (int*)malloc(n * n * sizeof(int));
+        // for (i = 0; i < n; i++)
+        //     for (j = 0; j < n; j++)
+        //         scanf("%d", &mat[i * n + j]);
+
+        /* load data */
+        printf("Loading graph from %s.\n", filename);
+        load(filename, &n, &mat);
+
+
+
+
     }
 
     MPI_Scatter(mat, 1, blk_col_mpi_t, loc_mat, n * loc_n, MPI_INT, 0, comm);
@@ -208,7 +256,7 @@ void Read_matrix(int loc_mat[], int n, int loc_n,
  *
  *
  */
-void Dijkstra_Init(int loc_mat[], int loc_pred[], int loc_dist[], int loc_known[],
+void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],
                    int my_rank, int loc_n) {
     int loc_v;
 
@@ -246,16 +294,18 @@ void Dijkstra_Init(int loc_mat[], int loc_pred[], int loc_dist[], int loc_known[
  *             loc_pred: loc_pred[v] = predecessor of v on a shortest path from source to v
  *
  */
-void Dijkstra(int loc_mat[], int loc_dist[], int loc_pred[], int loc_n, int n,
+void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
               MPI_Comm comm) {
 
-    int i, loc_v, loc_u, glbl_u, new_dist, my_rank, dist_glbl_u;
-    int *loc_known;
-    int my_min[2];
-    int glbl_min[2];
+     
+    float loc_v, loc_u, glbl_u, new_dist, my_rank, dist_glbl_u;
+    int i;
+    float *loc_known;
+    float my_min[2];
+    float glbl_min[2];
 
     MPI_Comm_rank(comm, &my_rank);
-    loc_known = (int*)malloc(loc_n * sizeof(int));
+    loc_known = (float*)malloc(loc_n * sizeof(float));
 
     Dijkstra_Init(loc_mat, loc_pred, loc_dist, loc_known, my_rank, loc_n);
 
@@ -332,7 +382,7 @@ void Dijkstra(int loc_mat[], int loc_dist[], int loc_pred[], int loc_n, int n,
  * Note:       loc_u = -1 is not supposed to be used when this function returns
  *
  */
-int Find_min_dist(int loc_dist[], int loc_known[], int loc_n) {
+int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
     int loc_u = -1, loc_v;
     int shortest_dist = INFINITY;
 
@@ -359,7 +409,7 @@ int Find_min_dist(int loc_dist[], int loc_known[], int loc_n) {
  *
  *
  */
-void Print_matrix(int mat[], int rows, int cols) {
+void Print_matrix(float mat[], float rows, float cols) {
     int i, j;
 
     for (i = 0; i < rows; i++) {
@@ -387,7 +437,7 @@ void Print_matrix(int mat[], int rows, int cols) {
  *              dist:  distances from 0 to each vertex v:  dist[v]
  *                 is the length of the shortest path 0->v
  */
-void Print_dists(int global_dist[], int n) {
+void Print_dists(float global_dist[], int n) {
     int v;
 
     printf("  v    dist 0->v\n");
@@ -415,10 +465,10 @@ void Print_dists(int global_dist[], int n) {
  *              pred:  list of predecessors:  pred[v] = u if
  *                 u precedes v on the shortest path 0->v
  */
-void Print_paths(int global_pred[], int n) {
+void Print_paths(float global_pred[], int n) {
     int v, w, *path, count, i;
 
-    path =  (int*)malloc(n * sizeof(int));
+    path =  (float*)malloc(n * sizeof(float));
 
     printf("  v     Path 0->v\n");
     printf("----    ---------\n");
