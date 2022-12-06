@@ -62,14 +62,14 @@ int main(int argc, char **argv) {
     MPI_Comm_size(comm, &p);
     n = Read_n(my_rank, comm);
     loc_n = n / p;
-    loc_mat = malloc(n * loc_n * sizeof(int));
-    loc_dist = malloc(loc_n * sizeof(int));
-    loc_pred = malloc(loc_n * sizeof(int));
+    loc_mat = (*int)malloc(n * loc_n * sizeof(int));
+    loc_dist = (*int)malloc(loc_n * sizeof(int));
+    loc_pred = (*int)malloc(loc_n * sizeof(int));
     blk_col_mpi_t = Build_blk_col_type(n, loc_n);
 
     if (my_rank == 0) {
-        global_dist = malloc(n * sizeof(int));
-        global_pred = malloc(n * sizeof(int));
+        global_dist = (*int)malloc(n * sizeof(int));
+        global_pred = (*int)malloc(n * sizeof(int));
     }
     Read_matrix(loc_mat, n, loc_n, blk_col_mpi_t, my_rank, comm);
     Dijkstra(loc_mat, loc_dist, loc_pred, loc_n, n, comm);
@@ -177,7 +177,7 @@ void Read_matrix(int loc_mat[], int n, int loc_n,
     int *mat = NULL, i, j;
 
     if (my_rank == 0) {
-        mat = malloc(n * n * sizeof(int));
+        mat = (*int)malloc(n * n * sizeof(int));
         for (i = 0; i < n; i++)
             for (j = 0; j < n; j++)
                 scanf("%d", &mat[i * n + j]);
@@ -255,7 +255,7 @@ void Dijkstra(int loc_mat[], int loc_dist[], int loc_pred[], int loc_n, int n,
     int glbl_min[2];
 
     MPI_Comm_rank(comm, &my_rank);
-    loc_known = malloc(loc_n * sizeof(int));
+    loc_known = (*int)malloc(loc_n * sizeof(int));
 
     Dijkstra_Init(loc_mat, loc_pred, loc_dist, loc_known, my_rank, loc_n);
 
@@ -418,7 +418,7 @@ void Print_dists(int global_dist[], int n) {
 void Print_paths(int global_pred[], int n) {
     int v, w, *path, count, i;
 
-    path =  malloc(n * sizeof(int));
+    path =  (*int)malloc(n * sizeof(int));
 
     printf("  v     Path 0->v\n");
     printf("----    ---------\n");
