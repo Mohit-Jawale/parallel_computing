@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 #SBATCH --job-name=djiktras
 #SBATCH --partition=cpu
