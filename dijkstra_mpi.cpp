@@ -104,8 +104,8 @@ int main(int argc, char **argv) {
     MPI_Init(NULL, NULL);
     comm = MPI_COMM_WORLD;
     MPI_Comm_rank(comm, &my_rank);
-    //MPI_Comm_size(comm, &p);
-    p = atoi(argv[4]);
+    MPI_Comm_size(comm, &p);
+    //p = atoi(argv[4]);
     n = Read_n(my_rank, comm, atoi(argv[2]));
     loc_n = n / p;
     loc_mat = (float*)malloc(n * loc_n * sizeof(float));
