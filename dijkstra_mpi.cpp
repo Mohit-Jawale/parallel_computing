@@ -190,7 +190,7 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
 
 
 
-void Read_matrix(int my_rank,const char * const filename,int * const n,,float ** const ap) {
+void Read_matrix(int my_rank,const char * const filename,int * const n,float ** const ap) {
     float * mat ;
     int i, j;
     if (my_rank == 0) {
