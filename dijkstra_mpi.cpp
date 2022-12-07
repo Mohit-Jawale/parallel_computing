@@ -72,6 +72,14 @@ load(
 
 
 static void
+print_time(const double seconds)
+{
+  printf("Search Time: %0.06fs\n", seconds);
+}
+
+
+
+static void
 print_numbers(
   const char * const filename,
   const int n,
