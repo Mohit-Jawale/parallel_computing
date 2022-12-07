@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
 
     te = clock();
 
-
+    print_time((double)(te-ts)/CLOCKS_PER_SEC);
     if(argc >= 4 and my_rank==0){
     cout<<"Computing result for source 0"<<endl;
     printf("Writing result to %s.\n", argv[3]);
