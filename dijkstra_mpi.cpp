@@ -129,13 +129,13 @@ int main(int argc, char **argv) {
     MPI_Gather(loc_dist, loc_n, MPI_INT, global_dist, loc_n, MPI_INT, 0, comm);
     MPI_Gather(loc_pred, loc_n, MPI_INT, global_pred, loc_n, MPI_INT, 0, comm);
 
-    /* Print results */
-    if (my_rank == 0) {
-        Print_dists(global_dist, n);
-        Print_paths(global_pred, n);
-        free(global_dist);
-        free(global_pred);
-    }
+    // /* Print results */
+    // if (my_rank == 0) {
+    //     Print_dists(global_dist, n);
+    //     Print_paths(global_pred, n);
+    //     free(global_dist);
+    //     free(global_pred);
+    // }
     free(loc_mat);
     free(loc_pred);
     free(loc_dist);
