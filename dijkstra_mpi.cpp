@@ -101,6 +101,32 @@ void Print_matrix(float global_mat[], int rows, int cols);
 void Print_dists(float global_dist[], int n);
 void Print_paths(float global_pred[], int n);
 
+
+
+static void
+print_numbers(
+  const char * const filename,
+  const int n,
+  const float * const numbers)
+{
+  int i;
+  FILE * fout;
+
+  /* open file */
+  if(NULL == (fout = fopen(filename, "w"))) {
+    fprintf(stderr, "error opening '%s'\n", filename);
+    abort();
+  }
+
+  /* write numbers to fout */
+  for(i=0; i<n; ++i) {
+    fprintf(fout, "%10.4f\n", numbers[i]);
+  }
+
+  fclose(fout);
+}
+
+
 int main(int argc, char **argv) {
     float *loc_mat, *loc_dist, *loc_pred, *global_dist = NULL, *global_pred = NULL;
     int my_rank, p, loc_n, n;
@@ -129,15 +155,27 @@ int main(int argc, char **argv) {
     MPI_Gather(loc_dist, loc_n, MPI_INT, global_dist, loc_n, MPI_INT, 0, comm);
     MPI_Gather(loc_pred, loc_n, MPI_INT, global_pred, loc_n, MPI_INT, 0, comm);
 
-    // /* Print results */
-    // if (my_rank == 0) {
-    //     Print_dists(global_dist, n);
-    //     Print_paths(global_pred, n);
-    //     free(global_dist);
-    //     free(global_pred);
-    // }
+    /* Print results */
+    if (my_rank == 0) {
+        //Print_dists(global_dist, n);
+        Print_paths(global_pred, n);
+        free(global_dist);
+        free(global_pred);
+    }
 
     printf("ennnnnddd fuck offf");
+
+
+//     if(argc >= 4){
+//     printf("Computing result for source 0.\n");
+//     dijkstra(0, n, a, &l);
+//     printf("Writing result to %s.\n", argv[3]);
+//     print_numbers(argv[3], n, l);
+//    }
+
+//     free(a);
+//     free(l);
+
     free(loc_mat);
     free(loc_pred);
     free(loc_dist);
@@ -468,34 +506,34 @@ int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
 
 
 
-// /*-------------------------------------------------------------------
-//  * Function:    Print_paths
-//  * Purpose:     Print the shortest path from 0 to each vertex
-//  * In args:     n:  the number of vertices
-//  *              pred:  list of predecessors:  pred[v] = u if
-//  *                 u precedes v on the shortest path 0->v
-//  */
-// void Print_paths(float global_pred[], int n) {
-//     int v, w, *path, count, i;
+/*-------------------------------------------------------------------
+ * Function:    Print_paths
+ * Purpose:     Print the shortest path from 0 to each vertex
+ * In args:     n:  the number of vertices
+ *              pred:  list of predecessors:  pred[v] = u if
+ *                 u precedes v on the shortest path 0->v
+ */
+void Print_paths(float global_pred[], int n) {
+    int v, w, *path, count, i;
 
-//     path =  (float*)malloc(n * sizeof(float));
+    path =  (float*)malloc(n * sizeof(float));
 
-//     printf("  v     Path 0->v\n");
-//     printf("----    ---------\n");
-//     for (v = 1; v < n; v++) {
-//         printf("%3d:    ", v);
-//         count = 0;
-//         w = v;
-//         while (w != 0) {
-//             path[count] = w;
-//             count++;
-//             w = global_pred[w];
-//         }
-//         printf("0 ");
-//         for (i = count-1; i >= 0; i--)
-//             printf("%d ", path[i]);
-//         printf("\n");
-//     }
+    printf("  v     Path 0->v\n");
+    printf("----    ---------\n");
+    for (v = 1; v < n; v++) {
+        printf("%3d:    ", v);
+        count = 0;
+        w = v;
+        while (w != 0) {
+            path[count] = w;
+            count++;
+            w = global_pred[w];
+        }
+        printf("0 ");
+        for (i = count-1; i >= 0; i--)
+            printf("%d ", path[i]);
+        printf("\n");
+    }
 
-//     free(path);
-// }
+    free(path);
+}
