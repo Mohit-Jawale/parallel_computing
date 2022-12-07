@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
 
 
     if(argc >= 4 and my_rank==0){
-    cout<<"Computing result for source 0<<endl;
+    cout<<"Computing result for source 0"<<endl;
     printf("Writing result to %s.\n", argv[3]);
     print_numbers(argv[3], n, global_dist);
    }
