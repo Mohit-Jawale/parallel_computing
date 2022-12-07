@@ -87,7 +87,7 @@ load(
   assert(a);
 
   /* read in roots local values */
-  mat = (float) malloc(n*n*sizeof(float));
+  mat = (float*) malloc(n*n*sizeof(float));
   for (i=0; i<n; ++i) {
     for (j=0; j<n; ++j) {
       ret = fscanf(fp, "%f", &a[i * n + j]);
