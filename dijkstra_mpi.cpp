@@ -91,7 +91,7 @@ load(
   for (i=0; i<n; ++i) {
     for (j=0; j<n; ++j) {
       ret = fscanf(fp, "%f", &a[i * n + j]);
-      &mat[i*n+j]=a[i * n + j];
+      mat[i*n+j]=a[i * n + j];
       //cout<<a[i * n + j]<<" ";
       assert(1 == ret);
     }
