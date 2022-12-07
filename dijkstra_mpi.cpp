@@ -18,7 +18,7 @@ using namespace std;
 
 int Read_n(int my_rank, MPI_Comm comm, int n);
 MPI_Datatype Build_blk_col_type(int n, int loc_n);
-void Read_matrix(int rank,const char * const filename,int n,float ** const ap);
+void Read_matrix(int rank,const char * const filename,int * const n,float ** const ap);
 void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
               MPI_Comm comm);
 void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],int my_rank, int loc_n);
@@ -190,7 +190,7 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
 
 
 
-void Read_matrix(int my_rank,const char * const filename,int n,float ** const ap) {
+void Read_matrix(int my_rank,const char * const filename,int * const n,,float ** const ap) {
     float * mat ;
     int i, j;
     if (my_rank == 0) {
