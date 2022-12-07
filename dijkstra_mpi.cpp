@@ -262,7 +262,8 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
  */
 void Read_matrix(float loc_mat[], int n, int loc_n,
                  MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename) {
-    float * mat = NULL, i, j;
+    float * mat ;
+    int i, j;
 
     if (my_rank == 0) {
         // mat = (int*)malloc(n * n * sizeof(int));
