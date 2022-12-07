@@ -18,8 +18,7 @@ using namespace std;
 
 int Read_n(int my_rank, MPI_Comm comm, int n);
 MPI_Datatype Build_blk_col_type(int n, int loc_n);
-void Read_matrix(float loc_mat[], int n, int loc_n,
-                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename);
+void Read_matrix(int n, const char * const filename,float ** const ap);
 void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
               MPI_Comm comm);
 void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],int my_rank, int loc_n);
@@ -106,7 +105,7 @@ print_numbers(
 int main(int argc, char **argv) {
 
     clock_t ts, te;
-    float *loc_mat, *loc_dist, *loc_pred, *global_dist = NULL, *global_pred = NULL;
+    float *loc_mat, *loc_dist, *loc_pred, *global_dist = NULL, *global_pred = NULL,*mat;
     int my_rank, p, loc_n, n;
     MPI_Comm comm;
     MPI_Datatype blk_col_mpi_t;
@@ -115,8 +114,8 @@ int main(int argc, char **argv) {
     comm = MPI_COMM_WORLD;
     MPI_Comm_rank(comm, &my_rank);
     MPI_Comm_size(comm, &p);
-    //p = atoi(argv[4]);
-    n = Read_n(my_rank, comm, atoi(argv[2]));
+    Read_matrix(argv[1],&n,&mat);
+    n = Read_n(my_rank, comm,n);
     loc_n = n / p;
     loc_mat = (float*)malloc(n * loc_n * sizeof(float));
     loc_dist = (float*)malloc(loc_n * sizeof(float));
@@ -127,7 +126,8 @@ int main(int argc, char **argv) {
         global_dist = (float*)malloc(n * sizeof(float));
         global_pred = (float*)malloc(n * sizeof(float));
     }
-    Read_matrix(loc_mat, n, loc_n, blk_col_mpi_t, my_rank, comm,argv[1]);
+    MPI_Scatter(mat, 1, blk_col_mpi_t, loc_mat, n * loc_n, MPI_INT, 0, comm);
+    
     ts = clock();
     Dijkstra(loc_mat, loc_dist, loc_pred, loc_n, n, comm);
     MPI_Gather(loc_dist, loc_n, MPI_INT, global_dist, loc_n, MPI_INT, 0, comm);
@@ -156,7 +156,7 @@ int main(int argc, char **argv) {
 
 
 
-int Read_n(int my_rank, MPI_Comm comm, int n) {
+int Read_n(int my_rank, MPI_Comm comm,int n) {
 
 
     MPI_Bcast(&n, 1, MPI_INT, 0, comm);
@@ -190,8 +190,7 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
 
 
 
-void Read_matrix(float loc_mat[], int n, int loc_n,
-                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename) {
+void Read_matrix(int n, const char * const filename,float ** const ap) {
     float * mat ;
     int i, j;
     if (my_rank == 0) {
@@ -199,10 +198,8 @@ void Read_matrix(float loc_mat[], int n, int loc_n,
         load(filename, &n, &mat);
 
     }
+    *ap = mat;
 
-    MPI_Scatter(mat, 1, blk_col_mpi_t, loc_mat, n * loc_n, MPI_INT, 0, comm);
-
-    if (my_rank == 0) free(mat);
 }
 
 
