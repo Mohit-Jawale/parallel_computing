@@ -96,6 +96,8 @@ print_numbers(
 
 
 int main(int argc, char **argv) {
+
+    clock_t ts, te;
     float *loc_mat, *loc_dist, *loc_pred, *global_dist = NULL, *global_pred = NULL;
     int my_rank, p, loc_n, n;
     MPI_Comm comm;
@@ -118,10 +120,12 @@ int main(int argc, char **argv) {
         global_pred = (float*)malloc(n * sizeof(float));
     }
     Read_matrix(loc_mat, n, loc_n, blk_col_mpi_t, my_rank, comm,argv[1]);
+    ts = clock();
     Dijkstra(loc_mat, loc_dist, loc_pred, loc_n, n, comm);
-
     MPI_Gather(loc_dist, loc_n, MPI_INT, global_dist, loc_n, MPI_INT, 0, comm);
     MPI_Gather(loc_pred, loc_n, MPI_INT, global_pred, loc_n, MPI_INT, 0, comm);
+
+    te = clock();
 
 
     if(argc >= 4 and my_rank==0){
