@@ -471,7 +471,7 @@ void Print_matrix(float mat[], int rows, int cols) {
             if (mat[i * cols + j] == INFINITY)
                 printf("i ");
             else
-                printf("%d ", mat[i * cols + j]);
+                printf("%f", mat[i * cols + j]);
         printf("\n");
     }
 
