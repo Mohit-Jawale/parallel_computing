@@ -195,7 +195,7 @@ void Read_matrix(int my_rank,const char * const filename,int * const n,,float **
     int i, j;
     if (my_rank == 0) {
         printf("Loading graph from %s.\n", filename);
-        load(filename, &n, &mat);
+        load(filename, n, &mat);
 
     }
     *ap = mat;
