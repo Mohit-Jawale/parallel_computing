@@ -278,6 +278,7 @@ void Read_matrix(float loc_mat[], int n, int loc_n,
 
 
     }
+    Print_matrix(mat,n,n);
 
     MPI_Scatter(mat, 1, blk_col_mpi_t, loc_mat, n * loc_n, MPI_INT, 0, comm);
 
@@ -450,27 +451,27 @@ int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
 
 
 
-// /*-------------------------------------------------------------------
-//  * Function:  Print_matrix
-//  * Purpose:   Print the contents of the matrix
-//  * In args:   mat, rows, cols
-//  *
-//  *
-//  */
-// void Print_matrix(float mat[], float rows, float cols) {
-//     int i, j;
+/*-------------------------------------------------------------------
+ * Function:  Print_matrix
+ * Purpose:   Print the contents of the matrix
+ * In args:   mat, rows, cols
+ *
+ *
+ */
+void Print_matrix(float mat[], int rows, int cols) {
+    int i, j;
 
-//     for (i = 0; i < rows; i++) {
-//         for (j = 0; j < cols; j++)
-//             if (mat[i * cols + j] == INFINITY)
-//                 printf("i ");
-//             else
-//                 printf("%d ", mat[i * cols + j]);
-//         printf("\n");
-//     }
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < cols; j++)
+            if (mat[i * cols + j] == INFINITY)
+                printf("i ");
+            else
+                printf("%d ", mat[i * cols + j]);
+        printf("\n");
+    }
 
-//     printf("\n");
-// }
+    printf("\n");
+}
 
 
 
