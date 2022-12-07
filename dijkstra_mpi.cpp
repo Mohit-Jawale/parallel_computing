@@ -86,7 +86,7 @@ load(
   /* close file */
   ret = fclose(fp);
   assert(!ret);
-
+  Print_matrix(a,n,n);
   /* record output values */
   *np = n;
   *ap = a;
@@ -267,7 +267,6 @@ void Read_matrix(float loc_mat[], int n, int loc_n,
                  MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename) {
     float * mat ;
     int i, j;
-    cout<<filename<<endl;
     if (my_rank == 0) {
         // mat = (int*)malloc(n * n * sizeof(int));
         // for (i = 0; i < n; i++)
@@ -282,7 +281,7 @@ void Read_matrix(float loc_mat[], int n, int loc_n,
 
 
     }
-    Print_matrix(mat,n,n);
+    //Print_matrix(mat,n,n);
 
     MPI_Scatter(mat, 1, blk_col_mpi_t, loc_mat, n * loc_n, MPI_INT, 0, comm);
 
