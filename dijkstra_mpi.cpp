@@ -92,8 +92,6 @@ load(
   for (i=0; i<n; ++i) {
     for (j=0; j<n; ++j) {
       ret = fscanf(fp, "%f",&a(i,j));
-      mat[i*n+j]=a[i * n + j];
-      //cout<<a[i * n + j]<<" ";
       assert(1 == ret);
     }
   }
@@ -101,7 +99,6 @@ load(
   /* close file */
   ret = fclose(fp);
   assert(!ret);
-  Print_matrix(mat,n,n);
   /* record output values */
   *np = n;
   *ap = a;
@@ -471,8 +468,8 @@ void Print_matrix(float mat[], int rows, int cols) {
             if (mat[i * cols + j] == INFINITY)
                 printf("i ");
             else
-                printf("%f", mat[i * cols + j]);
-        printf("\n");
+                cout<<mat[i * cols + j]<<endl;
+        cout<<endl;
     }
 
     printf("\n");
@@ -499,10 +496,10 @@ void Print_dists(float global_dist[], int n) {
 
     for (v = 1; v < n; v++) {
         if (global_dist[v] == INFINITY) {
-            printf("%3d       %5s\n", v, "inf");
+            printf("%3f       %5s\n", v, "inf");
         }
         else
-            printf("%3d       %4d\n", v, global_dist[v]);
+            printf("%3f      %4f\n", v, global_dist[v]);
         }
     printf("\n");
 }
@@ -528,7 +525,7 @@ void Print_paths(float global_pred[], int n) {
     printf("  v     Path 0->v\n");
     printf("----    ---------\n");
     for (v = 1; v < n; v++) {
-        printf("%3d:    ", v);
+        printf("%3f:    ", v);
         count = 0;
         w = v;
         while (w != 0) {
@@ -538,8 +535,8 @@ void Print_paths(float global_pred[], int n) {
         }
         printf("0 ");
         for (i = count-1; i >= 0; i--)
-            printf("%d ", path[i]);
-        printf("\n");
+            printf("%f ", path[i]);
+        cout<<endl;
     }
 
     free(path);
