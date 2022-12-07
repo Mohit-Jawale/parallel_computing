@@ -1,37 +1,3 @@
-/*----------------------------------------------------
- * File:    mpi_Dijkstra.c
- *
- * Purpose: implement Dijkstra's shortest path algorithm
- *          for a weighted directed graph using mpi
- *
- * Compile: mpicc -g -Wall -o mpi_Dijkstra mpi_Dijkstra.c
- * Run:     mpiexec -n <number of processes> mpi_Dijkstra
- *
- * Input:   n: the number of vertices
- *          mat: the matrix where mat[i][j] is the length
- *               from vertex i to j
- *
- * Output:  length of the shortest path from vertex 0 to vertex v
- *          Shortest path to each vertex v from vertex 0
- *
- * Algorithm: the matrix mat is partioned by columns so that each
- *            process gets n / p columns. In each iteration each
- *            process finds its local vertex with the shortest distance
- *            from the source vertex 0. A global minimum vertex u of the found
- *            shortest distances is computed and then each process updates
- *            its local distance array if there's a shorter path that goes through u
- *
- * Note:    1. This program assumes n is evenly divisible by
- *             p (number of processes)
- *          2. Edge weights should be nonnegative
- *          3. If there is no edge between any two vertices the weight is the constant
- *             INFINITY
- *          4. The cost of traveling to itself is 0
- *          5. The adjacency matrix is stored as an 1-dimensional array and subscripts
- *             are computed using A[n * i + j] to get A[i][j] in the 2-dimensional case
- *
- * Author: Henrik Lehmann
- *-----------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -153,21 +119,12 @@ int main(int argc, char **argv) {
     Read_matrix(loc_mat, n, loc_n, blk_col_mpi_t, my_rank, comm,argv[1]);
     Dijkstra(loc_mat, loc_dist, loc_pred, loc_n, n, comm);
 
-    /* Gather the results from Dijkstra */
     MPI_Gather(loc_dist, loc_n, MPI_INT, global_dist, loc_n, MPI_INT, 0, comm);
     MPI_Gather(loc_pred, loc_n, MPI_INT, global_pred, loc_n, MPI_INT, 0, comm);
 
-    // /* Print results */
-    // if (my_rank == 0) {
-    //     Print_dists(global_dist, n);
-    //     Print_paths(global_pred, n);
-    //     free(global_dist);
-    //     free(global_pred);
-    // }
-
 
     if(argc >= 4 and my_rank==0){
-    printf("Computing result for source 0.\n");
+    cout<<"Computing result for source 0<<endl;
     printf("Writing result to %s.\n", argv[3]);
     print_numbers(argv[3], n, global_dist);
    }
@@ -186,15 +143,6 @@ int main(int argc, char **argv) {
 
 
 
-
-/*---------------------------------------------------------------------
- * Function:  Read_n
- * Purpose:   Read in the number of rows in the matrix on process 0
- *            and broadcast this value to the other processes
- * In args:   my_rank:  the calling process' rank
- *            comm:  Communicator containing all calling processes
- * Ret val:   n:  the number of rows in the matrix
- */
 int Read_n(int my_rank, MPI_Comm comm, int n) {
 
 
@@ -205,17 +153,6 @@ int Read_n(int my_rank, MPI_Comm comm, int n) {
 
 
 
-
-
-/*---------------------------------------------------------------------
- * Function:  Build_blk_col_type
- * Purpose:   Build an MPI_Datatype that represents a block column of
- *            a matrix
- * In args:   n:  number of rows in the matrix and the block column
- *            loc_n = n/p:  number cols in the block column
- * Ret val:   blk_col_mpi_t:  MPI_Datatype that represents a block
- *            column
- */
 MPI_Datatype Build_blk_col_type(int n, int loc_n) {
     MPI_Aint lb, extent;
     MPI_Datatype block_mpi_t;
@@ -225,10 +162,9 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
     MPI_Type_contiguous(loc_n, MPI_INT, &block_mpi_t);
     MPI_Type_get_extent(block_mpi_t, &lb, &extent);
 
-    /* MPI_Type_vector(numblocks, elts_per_block, stride, oldtype, *newtype) */
     MPI_Type_vector(n, loc_n, n, MPI_INT, &first_bc_mpi_t);
 
-    /* This call is needed to get the right extent of the new datatype */
+
     MPI_Type_create_resized(first_bc_mpi_t, lb, extent, &blk_col_mpi_t);
 
     MPI_Type_commit(&blk_col_mpi_t);
@@ -241,42 +177,15 @@ MPI_Datatype Build_blk_col_type(int n, int loc_n) {
 
 
 
-
-
-
-/*---------------------------------------------------------------------
- * Function:  Read_matrix
- * Purpose:   Read in an nxn matrix of ints on process 0, and
- *            distribute it among the processes so that each
- *            process gets a block column with n rows and n/p
- *            columns
- * In args:   n:  the number of rows/cols in the matrix and the submatrices
- *            loc_n = n/p:  the number of columns in the submatrices
- *            blk_col_mpi_t:  the MPI_Datatype used on process 0
- *            my_rank:  the caller's rank in comm
- *            comm:  Communicator consisting of all the processes
- * Out arg:   loc_mat:  the calling process' submatrix (needs to be
- *               allocated by the caller)
- */
 void Read_matrix(float loc_mat[], int n, int loc_n,
                  MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename) {
     float * mat ;
     int i, j;
     if (my_rank == 0) {
-        // mat = (int*)malloc(n * n * sizeof(int));
-        // for (i = 0; i < n; i++)
-        //     for (j = 0; j < n; j++)
-        //         scanf("%d", &mat[i * n + j]);
-
-        /* load data */
         printf("Loading graph from %s.\n", filename);
         load(filename, &n, &mat);
 
-
-
-
     }
-    //Print_matrix(mat,n,n);
 
     MPI_Scatter(mat, 1, blk_col_mpi_t, loc_mat, n * loc_n, MPI_INT, 0, comm);
 
@@ -287,22 +196,6 @@ void Read_matrix(float loc_mat[], int n, int loc_n,
 
 
 
-
-/*-------------------------------------------------------------------
- * Function:   Dijkstra_Init
- * Purpose:    Initialize all the matrices so that Dijkstras shortest path
- *             can be run
- *
- * In args:    loc_n:    local number of vertices
- *             my_rank:  the process rank
- *
- * Out args:   loc_mat:  local matrix containing edge costs between vertices
- *             loc_dist: loc_dist[v] = shortest distance from the source to each vertex v
- *             loc_pred: loc_pred[v] = predecessor of v on a shortest path from source to v
- *             loc_known: loc_known[v] = 1 if vertex has been visited, 0 else
- *
- *
- */
 void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],
                    int my_rank, int loc_n) {
     int loc_v;
@@ -324,23 +217,6 @@ void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float lo
 
 
 
-
-
-/*-------------------------------------------------------------------
- * Function:   Dijkstra
- * Purpose:    compute all the shortest paths from the source vertex 0
- *             to all vertices v
- *
- *
- * In args:    loc_mat:  local matrix containing edge costs between vertices
- *             loc_n:    local number of vertices
- *             n:        total number of vertices (globally)
- *             comm:     the communicator
- *
- * Out args:   loc_dist: loc_dist[v] = shortest distance from the source to each vertex v
- *             loc_pred: loc_pred[v] = predecessor of v on a shortest path from source to v
- *
- */
 void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
               MPI_Comm comm) {
 
@@ -356,8 +232,7 @@ void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, in
 
     Dijkstra_Init(loc_mat, loc_pred, loc_dist, loc_known, my_rank, loc_n);
 
-    /* Run loop n - 1 times since we already know the shortest path to global
-       vertex 0 from global vertex 0 */
+
     for (i = 0; i < n - 1; i++) {
         loc_u = Find_min_dist(loc_dist, loc_known, loc_n);
 
@@ -370,30 +245,21 @@ void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, in
             my_min[1] = -1;
         }
 
-        /* Get the minimum distance found by the processes and store that
-           distance and the global vertex in glbl_min
-        */
+
         MPI_Allreduce(my_min, glbl_min, 1, MPI_2INT, MPI_MINLOC, comm);
 
         dist_glbl_u = glbl_min[0];
         glbl_u = glbl_min[1];
 
-        /* This test is to assure that loc_known is not accessed with -1 */
+
         if (glbl_u == -1)
             break;
 
-        /* Check if global u belongs to process, and if so update loc_known */
         if ((glbl_u / loc_n) == my_rank) {
             loc_u = glbl_u % loc_n;
             loc_known[loc_u] = 1;
         }
 
-        /* For each local vertex (global vertex = loc_v + my_rank * loc_n)
-           Update the distances from source vertex (0) to loc_v. If vertex
-           is unmarked check if the distance from source to the global u + the
-           distance from global u to local v is smaller than the distance
-           from the source to local v
-         */
         for (loc_v = 0; loc_v < loc_n; loc_v++) {
             if (!loc_known[loc_v]) {
                 new_dist = dist_glbl_u + loc_mat[glbl_u * loc_n + loc_v];
@@ -410,25 +276,6 @@ void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, in
 
 
 
-
-
-/*-------------------------------------------------------------------
- * Function:   Find_min_dist
- * Purpose:    find the minimum local distance from the source to the
- *             assigned vertices of the process that calls the method
- *
- *
- * In args:    loc_dist:  array with distances from source 0
- *             loc_known: array with values 1 if the vertex has been visited
- *                        0 if not
- *             loc_n:     local number of vertices
- *
- * Return val: loc_u: the vertex with the smallest value in loc_dist,
- *                    -1 if all vertices are already known
- *
- * Note:       loc_u = -1 is not supposed to be used when this function returns
- *
- */
 int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
     int loc_u = -1, loc_v;
     int shortest_dist = INFINITY;
@@ -442,98 +289,4 @@ int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
         }
     }
     return loc_u;
-}
-
-
-
-
-
-
-/*-------------------------------------------------------------------
- * Function:  Print_matrix
- * Purpose:   Print the contents of the matrix
- * In args:   mat, rows, cols
- *
- *
- */
-void Print_matrix(float mat[], int rows, int cols) {
-    int i, j;
-
-    for (i = 0; i < rows; i++) {
-        for (j = 0; j < cols; j++)
-            if (mat[i * cols + j] == INFINITY)
-                printf("i ");
-            else
-                cout<<mat[i * cols + j]<<endl;
-        cout<<endl;
-    }
-
-    printf("\n");
-}
-
-
-
-
-
-
-/*-------------------------------------------------------------------
- * Function:    Print_dists
- * Purpose:     Print the length of the shortest path from 0 to each
- *              vertex
- * In args:     n:  the number of vertices
- *              dist:  distances from 0 to each vertex v:  dist[v]
- *                 is the length of the shortest path 0->v
- */
-void Print_dists(float global_dist[], int n) {
-    int v;
-
-    printf("  v    dist 0->v\n");
-    printf("----   ---------\n");
-
-    for (v = 1; v < n; v++) {
-        if (global_dist[v] == INFINITY) {
-            printf("%3f       %5s\n", v, "inf");
-        }
-        else
-            printf("%3f      %4f\n", v, global_dist[v]);
-        }
-    printf("\n");
-}
-
-
-
-
-
-
-/*-------------------------------------------------------------------
- * Function:    Print_paths
- * Purpose:     Print the shortest path from 0 to each vertex
- * In args:     n:  the number of vertices
- *              pred:  list of predecessors:  pred[v] = u if
- *                 u precedes v on the shortest path 0->v
- */
-void Print_paths(float global_pred[], int n) {
-    int v, w, count, i;
-    float *path;
-
-    path =  (float*)malloc(n * sizeof(float));
-
-    printf("  v     Path 0->v\n");
-    printf("----    ---------\n");
-    for (v = 1; v < n; v++) {
-        printf("%3f:    ", v);
-        count = 0;
-        w = v;
-        while (w != 0) {
-            path[count] = w;
-            count++;
-            w = global_pred[w];
-        }
-        printf("0 ");
-        for (i = count-1; i >= 0; i--)
-            printf("%f ", path[i]);
-        cout<<endl;
-    }
-
-    free(path);
 }
