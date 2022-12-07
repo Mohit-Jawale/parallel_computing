@@ -72,7 +72,7 @@ load(
 {
   int i, j, n, ret;
   FILE * fp=NULL;
-  float * a;
+  float *a, *mat;
 
   /* open the file */
   fp = fopen(filename, "r");
@@ -87,19 +87,20 @@ load(
   assert(a);
 
   /* read in roots local values */
+  mat = (float) malloc(n*n*sizeof(float));
   for (i=0; i<n; ++i) {
     for (j=0; j<n; ++j) {
       ret = fscanf(fp, "%f", &a[i * n + j]);
+      &mat[i*n+j]=a[i * n + j];
       //cout<<a[i * n + j]<<" ";
       assert(1 == ret);
     }
-   cout<<endl; 
   }
 
   /* close file */
   ret = fclose(fp);
   assert(!ret);
-  Print_matrix(a,n,n);
+  Print_matrix(mat,n,n);
   /* record output values */
   *np = n;
   *ap = a;
