@@ -40,6 +40,8 @@
 #include <math.h>
 
 
+using namespace std;
+
 
 #define ROWMJR(R,C,NR,NC) (R*NC+C)
 #define COLMJR(R,C,NR,NC) (C*NR+R)
