@@ -44,11 +44,11 @@
 using namespace std;
 
 
-#define ROWMJR(R,C,NR,NC) (R*NC+C)
-#define COLMJR(R,C,NR,NC) (C*NR+R)
-/* define access directions for matrices */
-#define a(R,C) a[ROWMJR(R,C,ln,n)]
-#define b(R,C) b[ROWMJR(R,C,nn,n)]
+// #define ROWMJR(R,C,NR,NC) (R*NC+C)
+// #define COLMJR(R,C,NR,NC) (C*NR+R)
+// /* define access directions for matrices */
+// #define a(R,C) a[ROWMJR(R,C,ln,n)]
+// #define b(R,C) b[ROWMJR(R,C,nn,n)]
 
 int Read_n(int my_rank, MPI_Comm comm, int n);
 MPI_Datatype Build_blk_col_type(int n, int loc_n);
@@ -89,8 +89,8 @@ load(
   /* read in roots local values */
   for (i=0; i<n; ++i) {
     for (j=0; j<n; ++j) {
-      ret = fscanf(fp, "%f", &a(i,j));
-      cout<<a[i * n + j]<<" ";
+      ret = fscanf(fp, "%f", &a[i * n + j]);
+      //cout<<a[i * n + j]<<" ";
       assert(1 == ret);
     }
    cout<<endl; 
