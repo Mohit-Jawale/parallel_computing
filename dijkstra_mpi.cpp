@@ -50,6 +50,17 @@ using namespace std;
 #define a(R,C) a[ROWMJR(R,C,ln,n)]
 #define b(R,C) b[ROWMJR(R,C,nn,n)]
 
+int Read_n(int my_rank, MPI_Comm comm, int n);
+MPI_Datatype Build_blk_col_type(int n, int loc_n);
+void Read_matrix(float loc_mat[], int n, int loc_n,
+                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename);
+void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
+              MPI_Comm comm);
+void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],int my_rank, int loc_n);
+int Find_min_dist(float loc_dist[], float loc_known[], int loc_n);
+void Print_matrix(float global_mat[], int rows, int cols);
+void Print_dists(float global_dist[], int n);
+void Print_paths(float global_pred[], int n);
 
 
 static void
@@ -91,19 +102,6 @@ load(
   *np = n;
   *ap = a;
 }
-
-int Read_n(int my_rank, MPI_Comm comm, int n);
-MPI_Datatype Build_blk_col_type(int n, int loc_n);
-void Read_matrix(float loc_mat[], int n, int loc_n,
-                 MPI_Datatype blk_col_mpi_t, int my_rank, MPI_Comm comm,const char * const filename);
-void Dijkstra(float loc_mat[], float loc_dist[], float loc_pred[], int loc_n, int n,
-              MPI_Comm comm);
-void Dijkstra_Init(float loc_mat[], float loc_pred[], float loc_dist[], float loc_known[],int my_rank, int loc_n);
-int Find_min_dist(float loc_dist[], float loc_known[], int loc_n);
-void Print_matrix(float global_mat[], int rows, int cols);
-void Print_dists(float global_dist[], int n);
-void Print_paths(float global_pred[], int n);
-
 
 
 static void
