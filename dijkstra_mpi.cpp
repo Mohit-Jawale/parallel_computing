@@ -136,6 +136,8 @@ int main(int argc, char **argv) {
     //     free(global_dist);
     //     free(global_pred);
     // }
+
+    printf("ennnnnddd fuck offf")
     free(loc_mat);
     free(loc_pred);
     free(loc_dist);
