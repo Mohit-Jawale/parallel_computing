@@ -514,7 +514,8 @@ int Find_min_dist(float loc_dist[], float loc_known[], int loc_n) {
  *                 u precedes v on the shortest path 0->v
  */
 void Print_paths(float global_pred[], int n) {
-    int v, w, *path, count, i;
+    int v, w, count, i;
+    float *path;
 
     path =  (float*)malloc(n * sizeof(float));
 
